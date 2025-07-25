@@ -1,0 +1,32 @@
+# Xcode
+*.xcodeproj
+*.xcworkspace
+*.playground
+*.swiftpm
+
+# Build
+.build/
+build/
+DerivedData/
+*.o
+*.LinkFileList
+*.hmap
+
+# macOS
+.DS_Store
+.Spotlight-V100
+.Trashes
+._*
+
+# App bundles (can be rebuilt)
+*.app/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp 
