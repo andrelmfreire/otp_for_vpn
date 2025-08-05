@@ -15,8 +15,8 @@ class SettingsManager: ObservableObject {
     }
     
     init() {
-        self.baseString = UserDefaults.standard.string(forKey: "baseString") ?? "Wequ3kahtee@ph9o"
-        self.otpAuthURL = UserDefaults.standard.string(forKey: "otpAuthURL") ?? "otpauth://totp/andre.freire@OPNsense?secret=RGKFLVKQL4JLZROYKWVV4EWTKQJBLCXO"
+        self.baseString = UserDefaults.standard.string(forKey: "baseString") ?? ""
+        self.otpAuthURL = UserDefaults.standard.string(forKey: "otpAuthURL") ?? ""
     }
     
     func isValidOTPAuthURL(_ url: String) -> Bool {

@@ -16,7 +16,7 @@ A native macOS SwiftUI application for generating Time-based One-Time Passwords 
 
 The app displays:
 - **OPNsense Authenticator** title
-- **Account name** (andre.freire@OPNsense)
+- **Account name** (your service account)
 - **Large 6-digit OTP code** in monospace font
 - **Countdown timer** with visual feedback
 - **Copy Password button** with clipboard icon
@@ -51,7 +51,7 @@ swift build -c release
 1. Launch the **OTP Authenticator** app
 2. The app will display the current 6-digit OTP code
 3. Click **"Copy Password"** to copy the full password to clipboard
-   - Format: `Wequ3kahtee@ph9o######` (where ###### is the OTP code)
+   - Format: `[Your Password][OTP Code]` (where OTP Code is the 6-digit code)
 4. A bell sound confirms the password is copied
 5. The code refreshes automatically every 30 seconds
 
@@ -59,7 +59,7 @@ swift build -c release
 
 The app is pre-configured with:
 - **Secret**: `RGKFLVKQL4JLZROYKWVV4EWTKQJBLCXO`
-- **Account**: `andre.freire@OPNsense`
+- **Account**: `your-account@service`
 - **Issuer**: OPNsense
 - **Algorithm**: SHA-1 (RFC 6238 standard)
 - **Digits**: 6
@@ -67,7 +67,7 @@ The app is pre-configured with:
 
 To modify the configuration, update the `otpAuthURL` variable in `ContentView.swift`:
 ```swift
-let otpAuthURL = "otpauth://totp/andre.freire@OPNsense?secret=YOUR_SECRET_HERE"
+let otpAuthURL = "otpauth://totp/your-account@service?secret=YOUR_SECRET_HERE"
 ```
 
 ## Technical Details
