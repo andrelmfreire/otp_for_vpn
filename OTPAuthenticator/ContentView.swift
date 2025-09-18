@@ -79,24 +79,35 @@ func generateTOTP(secret: String, timeInterval: TimeInterval = 30, digits: Int =
 }
 
 struct ContentView: View {
-    @StateObject private var settingsManager = SettingsManager()
+    @StateObject private var accountManager = AccountManager()
     @State private var otpCode: String = ""
     @State private var timeRemaining: Int = 30 - Int(Date().timeIntervalSince1970) % 30
     @State private var showCopiedAlert = false
-    @State private var showingSettings = false
+    @State private var showingAccountList = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     func updateOTP() {
-        let secret = extractSecret(from: settingsManager.otpAuthURL) ?? ""
-        if let code = generateTOTP(secret: secret) {
-            otpCode = code
+        if let account = accountManager.selectedAccount {
+            if let code = account.generateOTP() {
+                otpCode = code
+            }
+            timeRemaining = account.period - Int(Date().timeIntervalSince1970) % account.period
+        } else {
+            otpCode = "No Account"
+            timeRemaining = 0
         }
-        timeRemaining = 30 - Int(Date().timeIntervalSince1970) % 30
     }
     
     func copyToClipboard() {
-        let finalPassword = "\(settingsManager.baseString)\(otpCode)"
+        guard let account = accountManager.selectedAccount else { return }
+        
+        let finalPassword: String
+        if account.useBasePassword && !account.basePassword.isEmpty {
+            finalPassword = "\(account.basePassword)\(otpCode)"
+        } else {
+            finalPassword = otpCode
+        }
         
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
@@ -122,8 +133,8 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                Button(action: { showingSettings = true }) {
-                    Image(systemName: "gearshape")
+                Button(action: { showingAccountList = true }) {
+                    Image(systemName: "person.2")
                         .font(.title2)
                         .foregroundColor(.accentColor)
                 }
@@ -131,9 +142,15 @@ struct ContentView: View {
             .padding(.top, 20)
             .padding(.horizontal, 20)
             
-            Text(extractServiceName(from: settingsManager.otpAuthURL))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            if let account = accountManager.selectedAccount {
+                Text(account.displayName)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            } else {
+                Text("No account selected")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
             
             VStack(spacing: 12) {
                 Text(otpCode)
@@ -154,12 +171,13 @@ struct ContentView: View {
             Button(action: copyToClipboard) {
                 HStack {
                     Image(systemName: "doc.on.clipboard")
-                    Text("Copy Password")
+                    Text(accountManager.selectedAccount?.useBasePassword == true ? "Copy Password" : "Copy OTP")
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 8)
             }
             .buttonStyle(BorderedButtonStyle())
+            .disabled(accountManager.selectedAccount == nil)
             
             if showCopiedAlert {
                 Text("✅ Password copied to clipboard!")
@@ -176,12 +194,12 @@ struct ContentView: View {
         .onReceive(timer) { _ in
             updateOTP()
         }
-        .onReceive(settingsManager.$otpAuthURL) { _ in
+        .onReceive(accountManager.$selectedAccountId) { _ in
             updateOTP()
         }
         .animation(.easeInOut(duration: 0.3), value: showCopiedAlert)
-        .sheet(isPresented: $showingSettings) {
-            SettingsView(settingsManager: settingsManager)
+        .sheet(isPresented: $showingAccountList) {
+            AccountListView(accountManager: accountManager)
         }
     }
 }
